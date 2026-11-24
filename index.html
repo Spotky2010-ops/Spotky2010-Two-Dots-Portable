@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Two Dots - Portable Web Edition</title>
+<style>
+  :root {
+    --bg-navy: #1c2841;
+    --bg-dark: #131c31;
+    --cream: #f7f3e8;
+    --card-bg: #efe8d8;
+    --teal: #3aa6a0;
+    --mint: #6bc497;
+    --coral: #eb5e55;
+    --gold: #f5b841;
+    --blue: #4682b4;
+    --purple: #8e6bbf;
+    --text-dark: #2c3545;
+    --text-muted: #6c7789;
+  }
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    background: #0e1422;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Phone Container */
+  #app {
+    width: 100vw;
+    max-width: 420px;
+    height: 100vh;
+    max-height: 820px;
+    background: var(--bg-navy);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (min-width: 450px) {
+    #app {
+      height: 92vh;
+      border-radius: 28px;
+      border: 4px solid #2b3a55;
+    }
+  }
+
+  /* Splash Screen */
+  #splash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 80%, #8a3048 0%, #1d2549 55%, #0d1326 100%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.45s ease, visibility 0.45s;
+  }
+  #splash.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .logo-badge {
+    background: #f4f6f9;
+    padding: 18px 28px;
+    border-radius: 26px;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.45);
+    text-align: center;
+    transform: rotate(-2deg);
+    margin-bottom: 34px;
+  }
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 900;
+    font-size: 46px;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .logo-two { color: #e8686b; }
+  .logo-dots { color: #398ab9; margin-top: 6px; }
+  .logo-dot {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .logo-dot.red { background: radial-gradient(circle at 30% 30%, #f38484, #d94e53); }
+  .logo-dot.blue { background: radial-gradient(circle at 30% 30%, #5da9d6, #2b73a3); }
+
+  .btn-primary {
+    background: var(--mint);
+    color: #fff;
+    border: none;
+    padding: 15px 46px;
+    border-radius: 30px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #4d9e76, 0 10px 20px rgba(0,0,0,0.3);
+    transition: transform 0.1s;
+  }
+  .btn-primary:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #4d9e76;
+  }
+
+  /* Top HUD */
+  .top-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    z-index: 20;
+    background: linear-gradient(180deg, rgba(16,23,40,0.85) 0%, rgba(16,23,40,0) 100%);
+  }
+  .hud-pill {
+    background: var(--cream);
+    color: var(--text-dark);
+    border-radius: 16px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 13px;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.25);
+    cursor: pointer;
+  }
+  .avatar-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #79c7c5, #478c9c);
+    border: 3px solid #f7f3e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    position: relative;
+  }
+  .avatar-badge {
+    position: absolute;
+    bottom: -4px;
+    background: var(--coral);
+    color: white;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 8px;
+  }
+  .coin-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid #d48e1c;
+    display: inline-block;
+  }
+  .heart-icon {
+    color: var(--mint);
+    font-size: 16px;
+  }
+  .icon-square-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: var(--cream);
+    color: var(--text-dark);
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.25);
+  }
+
+  /* Screens Container */
+  .screen {
+    flex: 1;
+    position: relative;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .screen.active {
+    display: flex;
+  }
+
+  /* HOME / MAP SCREEN */
+  #map-screen {
+    background: linear-gradient(180deg, #1b2845 0%, #24365c 50%, #1a2642 100%);
+  }
+  .rocket-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  /* Decorative Rocket & Gantry SVG */
+  .rocket-svg {
+    position: absolute;
+    bottom: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    opacity: 0.9;
+  }
+
+  /* Side Floating Event Icons */
+  .side-events-left {
+    position: absolute;
+    left: 12px;
+    top: 74px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 15;
+  }
+  .side-events-right {
+    position: absolute;
+    right: 12px;
+    top: 74px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 15;
+  }
+  .event-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .event-chip:active { transform: scale(0.93); }
+  .event-circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #2b3f66;
+    border: 3px solid #f7f3e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.35);
+    position: relative;
+  }
+  .event-notif {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--coral);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .event-timer {
+    background: var(--cream);
+    color: var(--text-dark);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin-top: -5px;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+  }
+
+  /* Winding Level Path */
+  .map-path {
+    position: relative;
+    flex: 1;
+    z-index: 10;
+  }
+  .level-node {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--cream);
+    color: var(--text-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 14px;
+    box-shadow: 0 5px 0 #c7beaa, 0 8px 15px rgba(0,0,0,0.35);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .level-node.current {
+    width: 64px;
+    height: 64px;
+    font-size: 16px;
+    border: 4px solid var(--gold);
+    animation: pulse 1.8s infinite;
+  }
+  .level-node.locked {
+    opacity: 0.75;
+    background: #d8d2c5;
+  }
+  .node-stars {
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    margin-bottom: 1px;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 184, 65, 0.7), 0 5px 0 #c7beaa; }
+    50% { box-shadow: 0 0 0 10px rgba(245, 184, 65, 0), 0 5px 0 #c7beaa; }
+  }
+
+  /* Bottom Play CTA Card on Map */
+  .map-cta-area {
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 14px;
+  }
+  .streak-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 6px;
+    background: rgba(15, 22, 38, 0.65);
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+  .s-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #485675;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .s-dot.active { background: var(--coral); }
+  .play-level-btn {
+    background: var(--mint);
+    color: #fff;
+    border: none;
+    width: 220px;
+    padding: 14px 0;
+    border-radius: 28px;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #4d9e76, 0 8px 18px rgba(0,0,0,0.35);
+  }
+  .play-level-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 3px 0 #4d9e76;
+  }
+
+  /* LEADERBOARD SCREEN */
+  #leaderboard-screen {
+    background: #23304d;
+    padding: 16px;
+    color: #fff;
+    overflow-y: auto;
+  }
+  .screen-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 14px;
+  }
+  .tab-bar {
+    display: flex;
+    background: #182238;
+    border-radius: 14px;
+    padding: 4px;
+    margin-bottom: 14px;
+  }
+  .tab-item {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #9aa7c2;
+    cursor: pointer;
+  }
+  .tab-item.active {
+    background: var(--cream);
+    color: var(--text-dark);
+  }
+  .ribbon-header {
+    background: var(--coral);
+    color: #fff;
+    text-align: center;
+    font-weight: 800;
+    padding: 6px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .friend-card {
+    background: var(--cream);
+    color: var(--text-dark);
+    border-radius: 16px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 0 #cfc6b2;
+  }
+  .friend-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rank-badge {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #fff;
+    font-weight: 900;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+Use code with caution.
+justify-content: center;
+}
+.friend-avatar {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background: #6bc497;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+border: 2px solid var(--coral);
+}
+.friend-name { font-weight: 800; font-size: 14px; }
+.friend-tier {
+display: inline-block;
+background: #d8dde6;
+color: #4f5b70;
+font-size: 11px;
+font-weight: 700;
+padding: 2px 8px;
+border-radius: 6px;
+margin-top: 2px;
+}
+.friend-level { text-align: right; }
+.friend-level span { display: block; font-size: 11px; color: var(--text-muted); font-weight: 700; }
+.friend-level strong { font-size: 16px; color: var(--text-dark); }
+/* SHOP / CARDS / SCAVENGER PLACEHOLDER TABS */
+#shop-screen, #cards-screen {
+background: var(--cream);
+color: var(--text-dark);
+padding: 16px;
+overflow-y: auto;
+}
+.shop-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 12px;
+margin-top: 12px;
+}
+.shop-card {
+background: #fff;
+border-radius: 16px;
+padding: 14px;
+text-align: center;
+box-shadow: 0 4px 0 #dcd4c0;
+}
+.shop-card h4 { margin: 8px 0 4px; font-size: 15px; }
+.shop-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.buy-btn {
+background: var(--teal);
+color: #fff;
+border: none;
+padding: 7px 14px;
+border-radius: 12px;
+font-weight: 800;
+cursor: pointer;
+}
+/* Bottom Navigation Bar */
+.bottom-nav {
+height: 62px;
+background: var(--cream);
+display: flex;
+border-top: 2px solid #dfd8c8;
+z-index: 25;
+}
+.nav-item {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+color: #8b95a5;
+font-size: 10px;
+font-weight: 800;
+cursor: pointer;
+gap: 3px;
+}
+.nav-item.active {
+color: var(--text-dark);
+}
+.nav-icon { font-size: 20px; }
+/* MODALS (Profile, Submarine Squad, Adventure Pass) */
+.modal-overlay {
+position: absolute;
+inset: 0;
+background: rgba(10, 15, 28, 0.78);
+z-index: 50;
+display: none;
+justify-content: center;
+align-items: center;
+padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal-card {
+width: 100%;
+max-height: 88%;
+background: var(--cream);
+border-radius: 24px;
+padding: 18px;
+color: var(--text-dark);
+position: relative;
+overflow-y: auto;
+box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+.modal-close {
+position: absolute;
+top: 14px;
+right: 14px;
+width: 32px;
+height: 32px;
+border-radius: 10px;
+background: #e2dac8;
+border: none;
+font-weight: 900;
+font-size: 16px;
+cursor: pointer;
+}
+/* Profile Specific */
+.profile-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-top: 10px;
+margin-bottom: 14px;
+}
+.level-banner {
+background: var(--coral);
+color: #fff;
+padding: 10px 14px;
+border-radius: 12px;
+text-align: center;
+font-weight: 800;
+}
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 8px;
+background: #e7decb;
+padding: 12px;
+border-radius: 16px;
+margin: 12px 0;
+text-align: center;
+}
+.stat-box span { display: block; font-size: 10px; color: var(--text-muted); font-weight: 700; }
+.stat-box strong { font-size: 16px; color: var(--text-dark); }
+.showcase-row {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 8px;
+margin-top: 8px;
+}
+.postcard {
+border-radius: 12px;
+padding: 10px 6px;
+color: #fff;
+font-size: 10px;
+font-weight: 800;
+text-align: center;
+height: 84px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+/* Submarine Modal */
+.sub-modal {
+background: linear-gradient(180deg, #163a63 0%, #0e2442 100%);
+color: #fff;
+text-align: center;
+}
+.sub-progress-bar {
+height: 22px;
+background: #0a192f;
+border-radius: 12px;
+overflow: hidden;
+margin: 16px 0;
+border: 2px solid #35689c;
+}
+.sub-progress-fill {
+height: 100%;
+background: var(--mint);
+width: 53%;
+transition: width 0.3s;
+}
+/* GAMEPLAY SCREEN */
+#game-screen {
+background: var(--cream);
+color: var(--text-dark);
+justify-content: space-between;
+}
+.game-top {
+background: #fff;
+padding: 12px 16px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+.moves-box {
+background: var(--bg-navy);
+color: #fff;
+padding: 6px 14px;
+border-radius: 14px;
+text-align: center;
+}
+.moves-box span { font-size: 10px; display: block; opacity: 0.8; }
+.moves-box strong { font-size: 20px; }
+.goals-row {
+display: flex;
+gap: 12px;
+}
+.goal-item {
+display: flex;
+align-items: center;
+gap: 5px;
+font-weight: 800;
+font-size: 14px;
+}
+.goal-dot {
+width: 18px;
+height: 18px;
+border-radius: 50%;
+display: inline-block;
+}
+.board-wrap {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+position: relative;
+padding: 10px;
+}
+#square-banner {
+position: absolute;
+top: 14px;
+background: var(--gold);
+color: #fff;
+font-weight: 900;
+font-size: 16px;
+padding: 6px 18px;
+border-radius: 20px;
+opacity: 0;
+transform: scale(0.8);
+transition: all 0.2s;
+pointer-events: none;
+box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+#square-banner.show {
+opacity: 1;
+transform: scale(1);
+}
+canvas#game-canvas {
+background: #fff;
+border-radius: 22px;
+box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+touch-action: none;
+cursor: pointer;
+}
+.game-footer {
+padding: 12px 16px 18px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: #fff;
+}
+.powerup-btn {
+background: #efe8d8;
+border: none;
+padding: 8px 14px;
+border-radius: 14px;
+font-weight: 800;
+font-size: 12px;
+color: var(--text-dark);
+cursor: pointer;
+}
+
+// --- GAME STATE ---
+let currentLevel = 1071;
+let coins = 2;
+let totalStars = 2608;
+let firstTryWins = 793;
+let streak = 1;
+let subPoints = 160;
+let rankPoints = 63;
+const friendsData = [
+{ rank: 1, name: "超宅 月亮", tier: "Silver", level: 8938, badge: 83, icon: "🟢" },
+{ rank: 2, name: "Lazy Kitten", tier: "Silver", level: 8809, badge: 108, icon: "🐈‍⬛" },
+{ rank: 3, name: "Girafe Dingue", tier: "Silver", level: 8807, badge: 214, icon: "🐢" },
+{ rank: 4, name: "Yappy Egg", tier: "Bronze", level: 6948, badge: 74, icon: "🍓" },
+{ rank: 5, name: "puffy cloud", tier: "Bronze", level: 4120, badge: 15, icon: "☁️" },
+{ rank: 6, name: "Spotky2010 (You)", tier: "Silver", level: 1071, badge: 1, icon: "👩🏻" }
+];
+// --- NAVIGATION & UI ---
+function enterGame() {
+document.getElementById('splash').classList.add('hidden');
+renderMapNodes();
+renderLeaderboard('social');
+}
+function switchTab(tab) {
+document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+document.getElementById('main-hud').style.display = 'flex';
+document.getElementById('bottom-nav').style.display = 'flex';
+if (tab === 'map') {
+document.getElementById('map-screen').classList.add('active');
+document.getElementById('nav-map').classList.add('active');
+renderMapNodes();
+} else if (tab === 'leaderboard') {
+document.getElementById('leaderboard-screen').classList.add('active');
+document.getElementById('nav-leaderboard').classList.add('active');
+renderLeaderboard('social');
+} else if (tab === 'shop') {
+document.getElementById('shop-screen').classList.add('active');
+document.getElementById('nav-shop').classList.add('active');
+} else if (tab === 'cards') {
+document.getElementById('cards-screen').classList.add('active');
+document.getElementById('nav-cards').classList.add('active');
+}
+}
+function openModal(id) {
+document.getElementById('prof-level').textContent = currentLevel;
+document.getElementById('stat-stars').textContent = totalStars;
+document.getElementById('stat-first').textContent = firstTryWins;
+document.getElementById('prof-streak').textContent = streak;
+document.getElementById('prof-rank').textContent = ${rankPoints}/300;
+document.getElementById('sub-points').textContent = subPoints;
+document.getElementById('sub-fill').style.width = Math.min(100, (subPoints / 300) * 100) + '%';
+document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+document.getElementById(id).classList.remove('open');
+}
+function addCoins(amount) {
+coins += amount;
+document.getElementById('hud-coins').textContent = coins;
+}
+function buyBoost(name) {
+alert(${name} added to your inventory!);
+}
+function renderMapNodes() {
+const container = document.getElementById('map-nodes-container');
+container.innerHTML = '';
+document.getElementById('main-play-btn').textContent = Level ${currentLevel};
+document.getElementById('hud-level-badge').textContent = currentLevel;
+const nodes = [
+{ lvl: currentLevel + 2, top: '8%', right: '26%', stars: '', status: 'locked' },
+{ lvl: currentLevel + 1, top: '24%', right: '18%', stars: '', status: 'locked' },
+{ lvl: currentLevel, top: '44%', right: '14%', stars: '', status: 'current' },
+{ lvl: currentLevel - 1, top: '61%', right: '16%', stars: '★', status: 'done' },
+{ lvl: currentLevel - 2, top: '77%', right: '16%', stars: '★★★', status: 'done' }
+];
+nodes.forEach(n => {
+const el = document.createElement('div');
+el.className = level-node ${n.status};
+el.style.top = n.top;
+el.style.right = n.right;
+el.innerHTML = ${n.stars ? ${n.stars} : ''}<div>${n.lvl}</div>;
+el.onclick = () => startLevel(n.lvl);
+container.appendChild(el);
+});
+}
+function toggleLbSub(el, mode) {
+document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+el.classList.add('active');
+renderLeaderboard(mode);
+}
+function renderLeaderboard(mode) {
+const list = document.getElementById('lb-list');
+const header = document.getElementById('lb-header');
+header.textContent = mode === 'social' ? 'My Friends' : 'Silver League Top Players';
+list.innerHTML = '';
+friendsData.forEach(f => {
+const lvl = f.name.includes('Spotky2010') ? currentLevel : f.level;
+const card = document.createElement('div');
+card.className = 'friend-card';
+card.innerHTML = <div class="friend-left"> <div class="rank-badge">${f.rank}</div> <div class="friend-avatar">${f.icon}</div> <div> <div class="friend-name">${f.name}</div> <div class="friend-tier">${f.tier}</div> </div> </div> <div class="friend-level"> <span>Level</span> <strong>${lvl}</strong> </div>;
+list.appendChild(card);
+});
+}
+// --- PLAYABLE TWO DOTS ENGINE ---
+const COLORS = [
+{ name: 'Red', hex: '#eb5e55' },
+{ name: 'Blue', hex: '#398ab9' },
+{ name: 'Green', hex: '#5cb88a' },
+{ name: 'Yellow', hex: '#f5b841' },
+{ name: 'Purple', hex: '#8e6bbf' }
+];
+const GRID_SIZE = 6;
+const CELL_SIZE = 52;
+const OFFSET = 14;
+let board = [];
+let selectedPath = [];
+let isDragging = false;
+let movesLeft = 22;
+let score = 0;
+let goals = {};
+let playingLevel = 1071;
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+function startLevel(lvl) {
+playingLevel = lvl;
+document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+document.getElementById('game-screen').classList.add('active');
+document.getElementById('main-hud').style.display = 'none';
+document.getElementById('bottom-nav').style.display = 'none';
+movesLeft = 20;
+score = 0;
+selectedPath = [];
+goals = {
+0: 14, // Red dots
+1: 14, // Blue dots
+2: 14  // Green dots
+};
+initBoard();
+updateGameHUD();
+drawBoard();
+}
+function quitLevel() {
+switchTab('map');
+}
+function initBoard() {
+board = [];
+for (let r = 0; r < GRID_SIZE; r++) {
+const row = [];
+for (let c = 0; c < GRID_SIZE; c++) {
+row.push(Math.floor(Math.random() * COLORS.length));
+}
+board.push(row);
+}
+}
+function shuffleBoard() {
+initBoard();
+selectedPath = [];
+drawBoard();
+}
+function updateGameHUD() {
+document.getElementById('game-moves').textContent = movesLeft;
+document.getElementById('game-score').textContent = score;
+const goalsEl = document.getElementById('game-goals');
+goalsEl.innerHTML = '';
+Object.keys(goals).forEach(colorIdx => {
+const rem = Math.max(0, goals[colorIdx]);
+const item = document.createElement('div');
+item.className = 'goal-item';
+item.innerHTML = <span class="goal-dot" style="background:${COLORS[colorIdx].hex}"></span><span>${rem === 0 ? '✓' : rem}</span>;
+goalsEl.appendChild(item);
+});
+}
+function getCellCenter(r, c) {
+return {
+x: OFFSET + c * CELL_SIZE + CELL_SIZE / 2,
+y: OFFSET + r * CELL_SIZE + CELL_SIZE / 2
+};
+}
+function drawBoard() {
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+// Draw connection lines
+if (selectedPath.length > 0) {
+const colorIdx = board[selectedPath[0].r][selectedPath[0].c];
+ctx.strokeStyle = COLORS[colorIdx].hex;
+ctx.lineWidth = 8;
+ctx.lineCap = 'round';
+ctx.lineJoin = 'round';
+ctx.beginPath();
+selectedPath.forEach((pt, idx) => {
+const pos = getCellCenter(pt.r, pt.c);
+if (idx === 0) ctx.moveTo(pos.x, pos.y);
+else ctx.lineTo(pos.x, pos.y);
+});
+ctx.stroke();
+}
+// Draw dots
+for (let r = 0; r < GRID_SIZE; r++) {
+for (let c = 0; c < GRID_SIZE; c++) {
+const colorIdx = board[r][c];
+if (colorIdx === null) continue;
+const pos = getCellCenter(r, c);
+const isSelected = selectedPath.some(p => p.r === r && p.c === c);
+if (isSelected) {
+ctx.beginPath();
+ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
+ctx.fillStyle = COLORS[colorIdx].hex + '33';
+ctx.fill();
+}
+ctx.beginPath();
+ctx.arc(pos.x, pos.y, isSelected ? 15 : 13, 0, Math.PI * 2);
+ctx.fillStyle = COLORS[colorIdx].hex;
+ctx.fill();
+}
+}
+}
+function getCellFromEvent(e) {
+const rect = canvas.getBoundingClientRect();
+const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+const x = (clientX - rect.left) * (canvas.width / rect.width);
+const y = (clientY - rect.top) * (canvas.height / rect.height);
+const c = Math.floor((x - OFFSET) / CELL_SIZE);
+const r = Math.floor((y - OFFSET) / CELL_SIZE);
+if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
+return { r, c };
+}
+return null;
+}
+function isAdjacent(a, b) {
+return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
+}
+function handleStart(e) {
+e.preventDefault();
+const cell = getCellFromEvent(e);
+if (!cell) return;
+isDragging = true;
+selectedPath = [cell];
+drawBoard();
+}
+function handleMove(e) {
+if (!isDragging) return;
+e.preventDefault();
+const cell = getCellFromEvent(e);
+if (!cell) return;
+const last = selectedPath[selectedPath.length - 1];
+if (cell.r === last.r && cell.c === last.c) return;
+// Backtrack if moving to previous dot
+if (selectedPath.length >= 2) {
+const prev = selectedPath[selectedPath.length - 2];
+if (cell.r === prev.r && cell.c === prev.c) {
+selectedPath.pop();
+drawBoard();
+return;
+}
+}
+// Must match color & be orthogonally adjacent
+const startColor = board[selectedPath[0].r][selectedPath[0].c];
+if (board[cell.r][cell.c] === startColor && isAdjacent(last, cell)) {
+// Allow closing a square (revisiting an earlier node in path of length >= 4)
+const alreadyIn = selectedPath.some(p => p.r === cell.r && p.c === cell.c);
+if (!alreadyIn || selectedPath.length >= 4) {
+selectedPath.push(cell);
+drawBoard();
+}
+}
+}
+function handleEnd() {
+if (!isDragging) return;
+isDragging = false;
+if (selectedPath.length >= 2) {
+const targetColor = board[selectedPath[0].r][selectedPath[0].c];
+// Check if closed loop (square)
+const uniqueKeys = new Set(selectedPath.map(p => ${p.r},${p.c}));
+const madeSquare = uniqueKeys.size < selectedPath.length;
+let clearedCount = 0;
+if (madeSquare) {
+showSquareBanner();
+for (let r = 0; r < GRID_SIZE; r++) {
+for (let c = 0; c < GRID_SIZE; c++) {
+if (board[r][c] === targetColor) {
+board[r][c] = null;
+clearedCount++;
+}
+}
+}
+} else {
+selectedPath.forEach(p => {
+if (board[p.r][p.c] !== null) {
+board[p.r][p.c] = null;
+clearedCount++;
+}
+});
+}
+if (goals[targetColor] !== undefined) {
+goals[targetColor] = Math.max(0, goals[targetColor] - clearedCount);
+}
+score += clearedCount * (madeSquare ? 25 : 10);
+movesLeft--;
+applyGravity();
+updateGameHUD();
+checkWinOrLose();
+}
+selectedPath = [];
+drawBoard();
+}
+function showSquareBanner() {
+const b = document.getElementById('square-banner');
+b.classList.add('show');
+setTimeout(() => b.classList.remove('show'), 1400);
+}
+function applyGravity() {
+for (let c = 0; c < GRID_SIZE; c++) {
+let empty = [];
+for (let r = GRID_SIZE - 1; r >= 0; r--) {
+if (board[r][c] === null) {
+empty.push(r);
+} else if (empty.length > 0) {
+const targetR = empty.shift();
+board[targetR][c] = board[r][c];
+board[r][c] = null;
+empty.push(r);
+}
+}
+empty.forEach(r => {
+board[r][c] = Math.floor(Math.random() * COLORS.length);
+});
+}
+}
+function checkWinOrLose() {
+const allDone = Object.values(goals).every(v => v === 0);
+if (allDone) {
+setTimeout(() => {
+alert(🎉 Level ${playingLevel} Complete!\nScore: ${score} (+3 Stars));
+if (playingLevel === currentLevel) {
+currentLevel++;
+}
+totalStars += 3;
+firstTryWins++;
+streak++;
+subPoints = Math.min(300, subPoints + 25);
+rankPoints = Math.min(300, rankPoints + 15);
+addCoins(5);
+switchTab('map');
+}, 200);
+} else if (movesLeft <= 0) {
+setTimeout(() => {
+alert(Out of moves on Level ${playingLevel}! Try again.);
+startLevel(playingLevel);
+}, 200);
+}
+}
+canvas.addEventListener('mousedown', handleStart);
+canvas.addEventListener('mousemove', handleMove);
+window.addEventListener('mouseup', handleEnd);
+canvas.addEventListener('touchstart', handleStart, { passive: false });
+canvas.addEventListener('touchmove', handleMove, { passive: false });
+window.addEventListener('touchend', handleEnd);
